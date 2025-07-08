@@ -1,6 +1,5 @@
 
 import os
-import difflib
 from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -10,7 +9,7 @@ def correct_text(text, model="gpt-3.5-turbo"):
 
 Please:
 1. Correct the grammar and spelling in the following text.
-2. Then rewrite it naturally and fluently like a native speaker.
+2. Then rewrite it more naturally and fluently like a native speaker.
 
 Text:
 {text}
@@ -22,14 +21,17 @@ Text:
     )
     full_output = response.choices[0].message.content.strip()
 
-    # Try to split or detect both parts intelligently
+    # Default values
     corrected = ""
     better_response = ""
+
     if "2." in full_output:
         parts = full_output.split("2.")
-        corrected = parts[0].strip().replace("1.", "").strip()
+        corrected = parts[0].replace("1.", "").strip()
         better_response = parts[1].strip()
     else:
-        corrected = full_output
+        # If there's no clear split, assume the full output is the better version
+        corrected = ""
+        better_response = full_output
 
     return corrected, [], better_response
