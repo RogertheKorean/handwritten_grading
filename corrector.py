@@ -1,8 +1,9 @@
 
-import openai
 import os
+import difflib
+from openai import OpenAI
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def correct_text(text, model="gpt-3.5-turbo"):
     prompt = f"""You are a grammar and writing expert.
@@ -14,11 +15,11 @@ Text:
 {text}
 """
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}]
     )
-    full_output = response['choices'][0]['message']['content']
+    full_output = response.choices[0].message.content
 
     # Attempt to parse output if separated into parts
     parts = full_output.split("2.")
