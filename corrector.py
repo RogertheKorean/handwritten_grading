@@ -1,5 +1,6 @@
 
 import os
+import difflib
 from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -8,7 +9,7 @@ def correct_text(text, model="gpt-3.5-turbo"):
     prompt = f"""You are a grammar and writing expert.
 
 1. Correct the grammar and spelling in the following text.
-2. Then rewrite it to be more fluent and natural for native English speakers.
+2. Rewrite the corrected text to be more natural and fluent like a native speaker.
 
 Text:
 {text}
@@ -18,17 +19,11 @@ Text:
         model=model,
         messages=[{"role": "user", "content": prompt}]
     )
+    full_output = response.choices[0].message.content
 
-    full_output = response.choices[0].message.content.strip()
+    # Attempt to parse output if separated into parts
+    parts = full_output.split("2.")
+    corrected = parts[0].strip()
+    better_response = parts[1].strip() if len(parts) > 1 else ""
 
-    corrected = ""
-    suggested = ""
-
-    if "2." in full_output:
-        parts = full_output.split("2.")
-        corrected = parts[0].replace("1.", "").strip()
-        suggested = parts[1].strip()
-    else:
-        suggested = full_output
-
-    return corrected, [], suggested
+    return corrected, [], better_response

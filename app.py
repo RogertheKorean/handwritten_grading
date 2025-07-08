@@ -1,3 +1,4 @@
+
 import streamlit as st
 from PIL import Image
 import os
@@ -5,7 +6,47 @@ from vision_ocr import extract_text
 from corrector import correct_text
 from image_feedback import annotate_image
 
+
+import json
+
+USER_FILE = "users.json"
+
+def load_users():
+    if os.path.exists(USER_FILE):
+        with open(USER_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_users(users):
+    with open(USER_FILE, "w") as f:
+        json.dump(users, f)
+
+users = load_users()
+
+st.sidebar.markdown("### 👤 User Management")
+selected_user = st.sidebar.selectbox("Select User", list(users.keys()) + ["➕ Add new user"], key="user_select")
+
+if selected_user == "➕ Add new user":
+    new_user = st.sidebar.text_input("Enter new username", key="new_user_input")
+    if st.sidebar.button("Create User", key="create_user_btn") and new_user:
+        users[new_user] = {}
+        save_users(users)
+        st.experimental_rerun()
+
+delete_user = st.sidebar.selectbox("Delete User", list(users.keys()), key="delete_user")
+if st.sidebar.button("Delete Selected User", key="delete_user_btn"):
+    if delete_user in users:
+        del users[delete_user]
+        save_users(users)
+        st.experimental_rerun()
+
+st.sidebar.markdown("---")
+st.sidebar.markdown(f"**Current User:** `{selected_user}`")
+
 st.set_page_config(page_title="Handwriting Grammar Corrector", layout="centered")
+
+# Placeholder for user authentication (to be integrated)
+# user = st.sidebar.text_input("User ID", key="user_id_input")
 
 lang = st.sidebar.radio("언어 / Language", ("English", "한국어"), key="lang_radio")
 model_choice = st.sidebar.selectbox("GPT Model", ["gpt-3.5-turbo", "gpt-4"], key="model_select")
@@ -65,3 +106,6 @@ if uploaded_file:
         with st.spinner(spinner_annotate):
             annotated_img = annotate_image(image, suggestions)
             st.image(annotated_img, caption=caption_annotated, use_container_width=True)
+
+        # Optionally save results to user history (to be added later)
+        # save_to_history(user, extracted_text, corrected_text, better_response)
