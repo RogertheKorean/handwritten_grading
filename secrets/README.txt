@@ -1,0 +1,1 @@
+Place your Google service account JSON key here and rename it to key.json
