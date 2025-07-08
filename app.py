@@ -21,6 +21,19 @@ def save_users(users):
     with open(USER_FILE, "w") as f:
         json.dump(users, f)
 
+
+HISTORY_FILE = "history.json"
+
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_history(history):
+    with open(HISTORY_FILE, "w") as f:
+        json.dump(history, f, indent=2)
+
 users = load_users()
 
 st.sidebar.markdown("### 👤 User Management")
@@ -31,14 +44,28 @@ if selected_user == "➕ Add new user":
     if st.sidebar.button("Create User", key="create_user_btn") and new_user:
         users[new_user] = {}
         save_users(users)
-        st.experimental_rerun()
+        st.rerun()
 
 delete_user = st.sidebar.selectbox("Delete User", list(users.keys()), key="delete_user")
 if st.sidebar.button("Delete Selected User", key="delete_user_btn"):
     if delete_user in users:
         del users[delete_user]
         save_users(users)
-        st.experimental_rerun()
+        st.rerun()
+
+
+st.sidebar.markdown("### 📜 Correction History")
+history = load_history()
+if selected_user in history:
+    for i, entry in enumerate(reversed(history[selected_user][-5:]), 1):
+        st.sidebar.markdown(f"**#{len(history[selected_user])-i+1}**")
+        st.sidebar.markdown(f"- 📝 Original: `{entry['original'][:50]}...`")
+        st.sidebar.markdown(f"- ✅ Corrected: `{entry['corrected'][:50]}...`")
+        if entry['suggested']:
+            st.sidebar.markdown(f"- 💡 Suggested: `{entry['suggested'][:50]}...`")
+        st.sidebar.markdown("---")
+else:
+    st.sidebar.info("No history yet for this user.")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"**Current User:** `{selected_user}`")
@@ -92,6 +119,7 @@ if uploaded_file:
     st.subheader(extracted_label)
     st.text_area(extracted_label, extracted_text, height=150)
 
+    
     if st.button(button_label):
         with st.spinner(spinner_correct):
             corrected_text, suggestions, better_response = correct_text(extracted_text, model=model_choice)
@@ -107,5 +135,16 @@ if uploaded_file:
             annotated_img = annotate_image(image, suggestions)
             st.image(annotated_img, caption=caption_annotated, use_container_width=True)
 
+        # Save history per user
+        history = load_history()
+        entry = {
+            "original": extracted_text,
+            "corrected": corrected_text,
+            "suggested": better_response
+        }
+        if selected_user not in history:
+            history[selected_user] = []
+        history[selected_user].append(entry)
+        save_history(history)
         # Optionally save results to user history (to be added later)
         # save_to_history(user, extracted_text, corrected_text, better_response)
