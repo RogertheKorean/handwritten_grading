@@ -5,11 +5,7 @@ from openai import OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def correct_text(text, model="gpt-3.5-turbo"):
-    prompt = f"""You are a grammar and writing expert.
-
-Please:
-1. Correct the grammar and spelling in the following text.
-2. Then rewrite it more naturally and fluently like a native speaker.
+    prompt = f"""Correct the grammar and spelling in the following text and make it more fluent and natural like a native speaker. Only return the improved version.
 
 Text:
 {text}
@@ -19,19 +15,6 @@ Text:
         model=model,
         messages=[{"role": "user", "content": prompt}]
     )
-    full_output = response.choices[0].message.content.strip()
 
-    # Default values
-    corrected = ""
-    better_response = ""
-
-    if "2." in full_output:
-        parts = full_output.split("2.")
-        corrected = parts[0].replace("1.", "").strip()
-        better_response = parts[1].strip()
-    else:
-        # If there's no clear split, assume the full output is the better version
-        corrected = ""
-        better_response = full_output
-
-    return corrected, [], better_response
+    improved = response.choices[0].message.content.strip()
+    return improved, [], ""  # Only returning corrected as needed
