@@ -59,6 +59,9 @@ if uploaded_file:
         st.subheader("✅ Corrected Text")
         st.text_area("Corrected Text", corrected_text, height=150)
 
+        st.subheader("💡 Suggested Version")
+        st.text_area("Suggested Version", better_response, height=150)
+
         if student_name:
             save_history(student_name, extracted_text, corrected_text)
 
