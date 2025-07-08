@@ -13,7 +13,7 @@ model_choice = st.sidebar.selectbox("GPT Model", ["gpt-3.5-turbo", "gpt-4"])
 
 if lang == "English":
     st.title("📝 Handwriting Grammar Corrector")
-    upload_label = "Upload a handwriting image"
+    input_method = st.radio("Choose input method:", ["Upload image", "Take photo"])
     extracted_label = "📜 Extracted Text"
     corrected_label = "✅ Corrected Text"
     better_label = "✨ Better Response"
@@ -21,11 +21,11 @@ if lang == "English":
     spinner_extract = "Extracting text..."
     spinner_correct = "Correcting with ChatGPT..."
     spinner_annotate = "Annotating Image..."
-    caption_uploaded = "Uploaded Image"
+    caption_uploaded = "Input Image"
     caption_annotated = "Annotated Image"
 else:
     st.title("📝 손글씨 문법 교정기")
-    upload_label = "손글씨 이미지 업로드"
+    input_method = st.radio("입력 방식 선택:", ["이미지 업로드", "사진 촬영"])
     extracted_label = "📜 추출된 텍스트"
     corrected_label = "✅ 교정된 텍스트"
     better_label = "✨ 더 자연스러운 표현"
@@ -33,10 +33,15 @@ else:
     spinner_extract = "텍스트를 추출 중..."
     spinner_correct = "ChatGPT로 문법 교정 중..."
     spinner_annotate = "이미지에 표시 중..."
-    caption_uploaded = "업로드된 이미지"
+    caption_uploaded = "입력된 이미지"
     caption_annotated = "교정된 이미지"
 
-uploaded_file = st.file_uploader(upload_label, type=["jpg", "jpeg", "png"])
+uploaded_file = None
+if input_method in ["Upload image", "이미지 업로드"]:
+    uploaded_file = st.file_uploader("Upload or select image", type=["jpg", "jpeg", "png"])
+elif input_method in ["Take photo", "사진 촬영"]:
+    uploaded_file = st.camera_input("Take a photo")
+
 if uploaded_file:
     image = Image.open(uploaded_file)
     st.image(image, caption=caption_uploaded, use_column_width=True)
