@@ -58,9 +58,9 @@ else:
 
 uploaded_file = None
 if input_method in ["Upload image", "이미지 업로드"]:
-    uploaded_file = st.file_uploader("Upload or select image", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Upload or select image", type=["jpg", "jpeg", "png"], key="image_upload")
 elif input_method in ["Take photo", "사진 촬영"]:
-    uploaded_file = st.camera_input("Take a photo")
+    uploaded_file = st.camera_input("Take a photo", key="camera_capture")
 
 if uploaded_file:
     image = Image.open(uploaded_file)
