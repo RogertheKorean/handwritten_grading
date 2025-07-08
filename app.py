@@ -1,3 +1,4 @@
+import pandas as pd
 from datetime import datetime
 
 import streamlit as st
@@ -9,6 +10,23 @@ from image_feedback import annotate_image
 
 
 import json
+
+
+def export_user_history(user, history):
+    if user not in history or not history[user]:
+        return None
+    records = []
+    for i, entry in enumerate(history[user], 1):
+        records.append({
+            "Entry #": i,
+            "Timestamp": entry.get("timestamp", ""),
+            "Original Text": entry["original"],
+            "Corrected Text": entry["corrected"],
+            "Rewritten Text": entry.get("suggested", ""),
+            "Explanation": entry.get("explanation", "")
+        })
+    return pd.DataFrame(records)
+
 
 USER_FILE = "users.json"
 
