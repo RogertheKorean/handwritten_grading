@@ -44,7 +44,7 @@ elif input_method in ["Take photo", "사진 촬영"]:
 
 if uploaded_file:
     image = Image.open(uploaded_file)
-    st.image(image, caption=caption_uploaded, use_column_width=True)
+    st.image(image, caption=caption_uploaded, use_container_width=True)
 
     with st.spinner(spinner_extract):
         extracted_text = extract_text(image)
@@ -64,4 +64,4 @@ if uploaded_file:
 
         with st.spinner(spinner_annotate):
             annotated_img = annotate_image(image, suggestions)
-            st.image(annotated_img, caption=caption_annotated, use_column_width=True)
+            st.image(annotated_img, caption=caption_annotated, use_container_width=True)
