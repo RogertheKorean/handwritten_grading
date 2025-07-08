@@ -1,3 +1,4 @@
+from datetime import datetime
 
 import streamlit as st
 from PIL import Image
@@ -54,17 +55,36 @@ if st.sidebar.button("Delete Selected User", key="delete_user_btn"):
         st.rerun()
 
 
-st.sidebar.markdown("### 📜 Correction History")
+
+st.markdown("## 📜 Full Correction History")
 history = load_history()
-if selected_user in history:
-    for i, entry in enumerate(reversed(history[selected_user][-5:]), 1):
-        st.sidebar.markdown(f"**#{len(history[selected_user])-i+1}**")
-        st.sidebar.markdown(f"- 📝 Original: `{entry['original'][:50]}...`")
-        st.sidebar.markdown(f"- ✅ Corrected: `{entry['corrected'][:50]}...`")
-        if entry['suggested']:
-            st.sidebar.markdown(f"- 💡 Suggested: `{entry['suggested'][:50]}...`")
-        st.sidebar.markdown("---")
+if selected_user in history and history[selected_user]:
+    for i, entry in enumerate(reversed(history[selected_user]), 1):
+        with st.expander(f"📄 Entry #{i} | 🕒 {entry.get('timestamp', 'N/A')}"):
+            st.markdown("**📝 Original Text**")
+            st.code(entry["original"], language="text")
+
+            st.markdown("**✅ Corrected Text**")
+            st.code(entry["corrected"], language="text")
+
+            if entry.get("suggested"):
+                st.markdown("**💡 Rewritten Text**")
+                st.code(entry["suggested"], language="text")
+
+            if entry.get("explanation"):
+                st.markdown("**🧠 GPT Explanation**")
+                st.info(entry["explanation"])
+
+    with st.expander("📤 Export Full History"):
+        df = export_user_history(selected_user, history)
+        if df is not None:
+            csv = df.to_csv(index=False).encode("utf-8")
+            st.download_button("Download CSV", csv, f"{selected_user}_correction_history.csv", "text/csv")
+        else:
+            st.info("No history available to export.")
 else:
+    st.warning("No history found for this user.")
+
     st.sidebar.info("No history yet for this user.")
 
 st.sidebar.markdown("---")
@@ -137,11 +157,15 @@ if uploaded_file:
 
         # Save history per user
         history = load_history()
+
         entry = {
             "original": extracted_text,
             "corrected": corrected_text,
-            "suggested": better_response
+            "suggested": better_response,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "explanation": "Corrected using GPT model for grammar accuracy and natural flow."
         }
+
         if selected_user not in history:
             history[selected_user] = []
         history[selected_user].append(entry)
