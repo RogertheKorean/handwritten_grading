@@ -103,7 +103,7 @@ model_choice = st.sidebar.selectbox("GPT Model", ["gpt-3.5-turbo", "gpt-4"], key
 
 st.title("📝 Handwriting Grammar Corrector")
 
-input_method = st.radio("Choose input method:", ["Upload image", "Take photo"])
+input_method = st.radio("Choose input method:", ["Upload image", "Take photo"], key="input_method_radio")
 
 uploaded_file = None
 if input_method == "Upload image":
