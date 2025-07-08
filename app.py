@@ -4,8 +4,19 @@ import os
 from vision_ocr import extract_text
 from corrector import correct_text
 from image_feedback import annotate_image
+from student_utils import load_students, add_student, save_students, save_history, load_history
+from io import StringIO
 
 st.set_page_config(page_title="Handwriting Grammar Corrector", layout="centered")
+
+# Load or create student list
+students = load_students()
+
+st.sidebar.header("👩‍🏫 Student Selection")
+student_name = st.sidebar.selectbox("Select student", students)
+
+new_name = st.sidebar.text_input("Add new student")
+col1, col2 = st.sidebar.columns([1, 1])
 
 lang = st.sidebar.radio("언어 / Language", ("English", "한국어"))
 model_choice = st.sidebar.selectbox("GPT Model", ["gpt-3.5-turbo", "gpt-4"])
